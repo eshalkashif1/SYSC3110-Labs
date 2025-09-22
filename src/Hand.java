@@ -28,9 +28,8 @@ public class Hand implements Comparable<Hand> {
 	 * e.g., "TD TC TH 7C 7D" returns True for n=2 and n=3, and False for n=1 and n=4
      */
     protected boolean hasNKind(int n) {
-        int count;
         for(Card c: cards){
-            count=1;
+            int count=1;
             Card.Rank rank = c.getRank();
             for(Card c2: cards){
                 if(c!=c2 && c2.getRank()==rank){
@@ -62,12 +61,22 @@ public class Hand implements Comparable<Hand> {
         }
         Collections.sort(ranks);
 
+        boolean consecutive = true;
         for(int i=0; i<ranks.size()-1; i++){
-            if(ranks.get(i+1)!=ranks.get(0)+1){
-                return false;
+            if(ranks.get(i+1)!=ranks.get(i)+1){
+                consecutive = false;
+                break;
             }
         }
-        return true;
+        if(consecutive){return true;}
+        boolean hasAce = ranks.contains(Card.Rank.ACE.ordinal());
+        boolean isWheel =
+                hasAce &&
+                        ranks.contains(Card.Rank.DEUCE.ordinal()) &&
+                        ranks.contains(Card.Rank.THREE.ordinal()) &&
+                        ranks.contains(Card.Rank.FOUR.ordinal()) &&
+                        ranks.contains(Card.Rank.FIVE.ordinal());
+        return isWheel;
     }
     
     /**
