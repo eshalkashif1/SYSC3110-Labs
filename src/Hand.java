@@ -1,0 +1,132 @@
+import java.util.*;
+import java.lang.String;
+
+/**
+ * A poker hand is a list of cards, which can be of some "kind" (pair, straight, etc.)
+ * 
+ */
+public class Hand implements Comparable<Hand> {
+
+    public enum Kind {HIGH_CARD, PAIR, TWO_PAIR, THREE_OF_A_KIND, STRAIGHT, 
+        FLUSH, FULL_HOUSE, FOUR_OF_A_KIND, STRAIGHT_FLUSH}
+
+    private final List<Card> cards;
+
+    /**
+     * Create a hand from a string containing all cards (e,g, "5C TD AH QS 2D")
+     */
+    public Hand(String c) {
+        cards = new ArrayList<>();
+       String[] cards_string = c.split(" ");
+       for(String card: cards_string){
+           cards.add(new Card(card));
+       }
+    }
+    
+    /**
+     * @returns true if the hand has n cards of the same rank
+	 * e.g., "TD TC TH 7C 7D" returns True for n=2 and n=3, and False for n=1 and n=4
+     */
+    protected boolean hasNKind(int n) {
+        int count;
+        for(Card c: cards){
+            count=1;
+            Card.Rank rank = c.getRank();
+            for(Card c2: cards){
+                if(c!=c2 && c2.getRank()==rank){
+                    count++;
+                }
+                if(count==n){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+	 * Optional: you may skip this one. If so, just make it return False
+     * @returns true if the hand has two pairs
+     */
+    public boolean isTwoPair() {
+        return false;
+    }   
+    
+    /**
+     * @returns true if the hand is a straight 
+     */
+    public boolean isStraight() {
+        ArrayList<Integer> ranks = new ArrayList<>();
+        for(Card c: cards){
+            ranks.add(c.getRank().ordinal());
+        }
+        Collections.sort(ranks);
+
+        for(int i=0; i<ranks.size()-1; i++){
+            if(ranks.get(i+1)!=ranks.get(0)+1){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * @returns true if the hand is a flush
+     */
+    public boolean isFlush() {
+        Card.Suit suit = cards.get(0).getSuit();
+        for(Card c: cards){
+            if(c.getSuit()!=suit){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    @Override
+    public int compareTo(Hand h) {
+        //hint: delegate!
+		//and don't worry about breaking ties
+        return this.kind().compareTo(h.kind());
+
+        /*
+        if(compareKinds!=0){
+            return compareKinds;
+        }
+        ArrayList<Integer> thisRanks = new ArrayList<>();
+        ArrayList<Integer> otherRanks = new ArrayList<>();
+        for(int i=0; i<this.cards.size(); i++){
+            thisRanks.add(this.cards.get(i).getRank().ordinal());
+            otherRanks.add(h.cards.get(i).getRank().ordinal());
+        }
+        Collections.sort(thisRanks);
+        Collections.sort(otherRanks);
+
+        for(int i=thisRanks.size()-1; i >=0; i--){
+            int diff = thisRanks.get(i).compareTo(otherRanks.get(i));
+            if(diff!=0){
+                return diff;
+            }
+        }
+        return 0;
+         */
+
+    }
+    
+    /**
+	 * This method is already implemented and could be useful! 
+     * @returns the "kind" of the hand: flush, full house, etc.
+     */
+    public Kind kind() {
+        if (isStraight() && isFlush()) return Kind.STRAIGHT_FLUSH;
+        else if (hasNKind(4)) return Kind.FOUR_OF_A_KIND; 
+        else if (hasNKind(3) && hasNKind(2)) return Kind.FULL_HOUSE;
+        else if (isFlush()) return Kind.FLUSH;
+        else if (isStraight()) return Kind.STRAIGHT;
+        else if (hasNKind(3)) return Kind.THREE_OF_A_KIND;
+        else if (isTwoPair()) return Kind.TWO_PAIR;
+        else if (hasNKind(2)) return Kind.PAIR; 
+        else return Kind.HIGH_CARD;
+    }
+
+}
